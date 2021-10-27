@@ -52,6 +52,6 @@ function getAllUrls(doc){
         }
     }
     for(let i = 0; i < urlArr.length; i++){
-        goToFilteredSearch('http://amazon.com'+urlArr[i], urlArr.length -1 )
+        goToFilteredSearch('https://amazon.com'+urlArr[i], urlArr.length -1 )
     }
 }
