@@ -464,10 +464,11 @@ function goToFilteredSearch(prevUrl, urlArr, crawlFiltersOnly){
                         
                     if(ew.size <= prevEwSize){
                         window.alert("Error: Seems like this site is blocking the Bot. \nTry visiiting to the site manually on your browser, And answer the i'm not a robot question to unblock your IP,\n Then try Again.");
-                    
                     }
-                        window.alert("Error: Some filters was found, \n You can download the available filters if you want.");
-                        $('.btn2').removeClass('hide');
+                    window.alert("Error: Some filters was found, \n You can download the available filters if you want.");
+                    idxStop++;
+                    goToFilteredSearch(urlArr[idxStop], urlArr, crawlFiltersOnly);
+                    $('.btn2').removeClass('hide');
                     }, 7000)
                 }else{
                     window.alert("Error: Seems like this site is blocking the Bot. \nTry visiiting to the site manually on your browser, And answer the 'i'm not a robot' question to unblock your IP,\n Then try Again.");
@@ -587,14 +588,17 @@ function increaseWater(curr, final){
     let waterLevel = 650 - (reduce - 120);
 
     addRule(".water:before", {
+        transition: 'all .5s',
         content:'',
         position: 'absolute',
         width: `${waterLevel}px`,
         height: `${waterLevel}px`,
         top:-'150px',
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
+        transition: 'all .5s'
     });
     addRule(".water:after", {
+        transition: 'all .5s',
         content:'',
         position: 'absolute',
         width: `${waterLevel}px`,
