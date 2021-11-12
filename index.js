@@ -1,5 +1,17 @@
 let urlArrIndex = 0;
 
+$(document).ready(function (){
+
+    
+    // 
+    (function () {
+        $('.button').click(() => {
+            $('.button').addClass('clicked');
+            console.log('clicked')
+        })
+    })();
+})
+
 const _d = (u) => {
     return document.querySelector(u);
 }
@@ -18,6 +30,7 @@ const urlFunctions = {
             xhrGetUrls(baseUrl, catUrl, '.sitemap-box', crawlFiltersOnly)
     },
     upwork: function(baseUrl, catUrl, crawlFiltersOnly){
+        console.log('upwork!!')
             xhrGetUrls(baseUrl, catUrl, '.mt-10', crawlFiltersOnly);
     },
     ebay: function(baseUrl, catUrl, crawlFiltersOnly){
@@ -51,6 +64,10 @@ function getUrl(){
     }else{
         url = urlArr.join('');
     }
+
+    $('.btn2').on('click', () => {
+        mapDownload(url, allUrl, ew, crawlFiltersOnly)
+    });
 
     switchCaseUrl(url.toLowerCase(), crawlFiltersOnly);
 }
@@ -90,6 +107,35 @@ function xhrGetUrls(baseUrl, catUrl, id_class, crawlFiltersOnly){
 
     xhr.onload = function (){
 
+        switch (xhr.readyState) {
+            case 0:
+                console.log('request not initialized')
+                break;
+            case 1:
+                console.log('server connection established')
+            break;
+            case 2:
+                console.log('request received')
+                break;
+            case 3:
+                console.log('processing request')
+                break;
+            case 4:
+                console.log('request finished and response is ready')
+                break;
+        
+            default:
+                console.log('#sigh Omo! nothing play o')
+                break;
+        }
+        if(xhr.readyState == 4 && xhr.status == 403){
+            setTimeout(() => {
+                    window.alert("Error: Seems like this site is blocking the Bot. \nTry visiiting to the site manually on your browser, And answer the 'i'm not a robot' question to unblock your IP");
+                    location.reload();
+            }, 1000)
+
+    }
+
         if(xhr.readyState == 4 && xhr.status == 200){
             let response = xhr.responseXML;       
             let categories_a = $(response).find(id_class).find('a');
@@ -99,7 +145,8 @@ function xhrGetUrls(baseUrl, catUrl, id_class, crawlFiltersOnly){
                 if(baseUrl === popularUrl.ebay){
                     allUrl.push('/sch/ebayadvsearch')
                 }
-    
+                
+                //push the categories page
                 urls.push('/' + catUrl.split('/').splice(3).join('/'));
                 
                 for (let i = 0; i < categories_a.length; i++) {
@@ -121,7 +168,6 @@ function xhrGetUrls(baseUrl, catUrl, id_class, crawlFiltersOnly){
     
                 let newUrlArr = removeDuplicates(urls);
                 
-                setTimeout(() => console.log(allUrl), 3000);
                 for(let i = 0; i < newUrlArr.length; i++){
                     allUrl.push(catUrl.split('/').splice(0, 3).join('/') + newUrlArr[i]);
 
@@ -141,6 +187,13 @@ function xhrGetUrls(baseUrl, catUrl, id_class, crawlFiltersOnly){
         window.alert("Error Code"+xhr.status + ": "+ xhr.statusText);
     }
 
+    xhr.ontimeout = function (){
+        console.log('i timed out')
+    }
+
+    xhr.onloadstart = function (){
+        console.log('i just started')
+    }
 
     xhr.send();
 }
@@ -155,6 +208,48 @@ function xhrGetDefualtUrls(url, crawlFiltersOnly){
         xhr.responseType = "document"; //csv, json
     
         xhr.onload = function (){
+            // Holds the status of the XMLHttpRequest.
+            // 0: request not initialized
+            // 1: server connection established
+            // 2: request received
+            // 3: processing request
+            // 4: request finished and response is ready
+            // status	200: "OK"
+            // 403: "Forbidden"
+            // 404: "Page not found"
+
+
+            switch (xhr.readyState) {
+                case 0:
+                    console.log('request not initialized')
+                    break;
+                case 1:
+                    console.log('server connection established')
+                break;
+                case 2:
+                    console.log('request received')
+                    break;
+                case 3:
+                    console.log('processing request')
+                    break;
+                case 4:
+                    console.log('request finished and response is ready')
+                    break;
+            
+                default:
+                    console.log('#sigh Omo! nothing play o')
+                    break;
+            }
+            if(xhr.readyState == 4 && xhr.status == 403){
+                let  prevEwSize ;
+                prevEwSize = ew.size;
+
+                setTimeout(() => {
+                        window.alert("Error: Seems like this site is blocking the Bot. \nTry visiiting to the site manually on your browser, And answer the i'm not a robot to unblock your IP");
+                        location.reload();
+                }, 2000)
+
+        }
 
             if(xhr.readyState == 4 && xhr.status == 200){
                 let response = xhr.responseXML;
@@ -204,7 +299,7 @@ function xhrGetDefualtUrls(url, crawlFiltersOnly){
                         setTimeout(() => console.log(allUrl), 3000);
                         for(let i = 0; i < newUrlArr.length; i++){
                             if(i == 0){
-                                allUrl.push(catUrl.split('/').splice(0, 3).join('/') +newUrlArr[i])
+                                allUrl.push(newUrlArr[i])
                             }else{
                                 allUrl.push(catUrl.split('/').splice(0, 3).join('/') + newUrlArr[i])
                             }
@@ -228,7 +323,14 @@ function xhrGetDefualtUrls(url, crawlFiltersOnly){
             
             window.alert("Error Code"+xhr.status + ": "+ xhr.statusText);
         }
+        
+        xhr.ontimeout = function (){
+            console.log('i timed out')
+        }
     
+        xhr.onloadstart = function (){
+            console.log('i just started')
+        }
         xhr.send();
     
     } 
@@ -276,28 +378,46 @@ function xhrGetDefualtUrls(url, crawlFiltersOnly){
     }else{
         // is it the homepage
         if((url.split('/').length - 1) > 2){
-            getCatUrls(url);
+            
+            console.log('i\'m if: not homepage but i"ve got some links' );
+            switch (true) {
+                case url.includes(popularUrl.amazon):
+                    urlFunctions.amazon(popularUrl.amazon, url, crawlFiltersOnly );
+                    break;
+                case url.includes(popularUrl.fiverr):
+                    urlFunctions.fiverr(popularUrl.fiverr, url, crawlFiltersOnly );
+                break;
+                case url.includes(popularUrl.upwork):
+                    urlFunctions.upwork(popularUrl.upwork, url, crawlFiltersOnly );
+                break;
+                case url.includes(popularUrl.ebay):
+                    urlFunctions.ebay(popularUrl.ebay, url, crawlFiltersOnly);
+                break;
+                default:
+                    getCatUrls(url);
+                break;
+            }
         }else{
             // a home page do this
             console.log('i\'m else' );
-        // if known
-        switch (true) {
-            case url.includes(popularUrl.amazon):
-                urlFunctions.amazon(popularUrl.amazon, url, crawlFiltersOnly );
+            // if known
+            switch (true) {
+                case url.includes(popularUrl.amazon):
+                    urlFunctions.amazon(popularUrl.amazon, url, crawlFiltersOnly );
+                    break;
+                case url.includes(popularUrl.fiverr):
+                    urlFunctions.fiverr(popularUrl.fiverr, url, crawlFiltersOnly );
                 break;
-            case url.includes(popularUrl.fiverr):
-                urlFunctions.fiverr(popularUrl.fiverr, url, crawlFiltersOnly );
-            break;
-            case url.includes(popularUrl.upwork):
-                urlFunctions.upwork(popularUrl.upwork, url, crawlFiltersOnly );
-            break;
-            case url.includes(popularUrl.ebay):
-                urlFunctions.ebay(popularUrl.ebay, url, crawlFiltersOnly);
-            break;
-            default:
-                getDomainUrls(url)
-            break;
-        }
+                case url.includes(popularUrl.upwork):
+                    urlFunctions.upwork(popularUrl.upwork, url, crawlFiltersOnly );
+                break;
+                case url.includes(popularUrl.ebay):
+                    urlFunctions.ebay(popularUrl.ebay, url, crawlFiltersOnly);
+                break;
+                default:
+                    getDomainUrls(url)
+                break;
+            }
 
         }
     }
@@ -305,12 +425,23 @@ function xhrGetDefualtUrls(url, crawlFiltersOnly){
 
 }
 
-let idxStop = 1;
+let idxStop = 0;
+
+    setTimeout(() => {
+        if(ew.size > 0){
+            $('.btn2').removeClass('hide');
+            window.alert(`Error: ${ew.size + 1} filters have been found, but i'll keep looking for Filters, \n You can download the available filters if you want.`);
+            
+        }
+    }, 20000)
+
 function goToFilteredSearch(prevUrl, urlArr, crawlFiltersOnly){
     
     $('.div').removeClass('show')
     $('.water').addClass('show_water');
 
+    console.log(urlArr)
+    console.log(idxStop)
     if(urlArr){
         increaseWater(idxStop, urlArr.length);
     }else{
@@ -321,18 +452,41 @@ function goToFilteredSearch(prevUrl, urlArr, crawlFiltersOnly){
     // xhr.open("GET", url, true);
     xhr.open("GET", prevUrl, true);
     xhr.responseType = "document"; //csv, json
+
     xhr.onload = function (){
+        if(xhr.readyState == 4 && xhr.status == 403){
+                let  prevEwSize ;
+                prevEwSize = ew.size;
+
+                console.log(ew.size + " " + prevEwSize)
+                if(ew.size > 0){
+                    setTimeout(() => {
+                        
+                    if(ew.size <= prevEwSize){
+                        window.alert("Error: Seems like this site is blocking the Bot. \nTry visiiting to the site manually on your browser, And answer the i'm not a robot question to unblock your IP,\n Then try Again.");
+                    
+                    }
+                        window.alert("Error: Some filters was found, \n You can download the available filters if you want.");
+                        $('.btn2').removeClass('hide');
+                    }, 7000)
+                }else{
+                    window.alert("Error: Seems like this site is blocking the Bot. \nTry visiiting to the site manually on your browser, And answer the 'i'm not a robot' question to unblock your IP,\n Then try Again.");
+                }
+
+        }
+
         if(xhr.readyState == 4 && xhr.status == 200){
             let response = xhr.responseXML;
 
             crawl(response);
 
+
+
             if(urlArr){
-                if(idxStop < urlArr.length - 1){
+                if(idxStop < urlArr.length){
                     goToFilteredSearch(urlArr[idxStop], urlArr);
-                    idxStop++;
-    
-                    if(idxStop == urlArr.length - 1 ){
+                    console.log('idxStop'+ idxStop)
+                    if(idxStop == urlArr.length ){
                         setTimeout(() => {
                             if(ew.size == 0){
                                 $('.water').removeClass('show_water');
@@ -349,6 +503,8 @@ function goToFilteredSearch(prevUrl, urlArr, crawlFiltersOnly){
                             }
                         }, 2000);
                     }
+                    
+                    idxStop++;
                 }
             }else{
                 increaseWater(idxStop, 2);
@@ -372,12 +528,23 @@ function goToFilteredSearch(prevUrl, urlArr, crawlFiltersOnly){
     }                         
 
     xhr.onerror = function(){
+
         idxStop++;
         goToFilteredSearch(urlArr[idxStop], urlArr, crawlFiltersOnly);
         
         // window.alert("Error Code "+xhr.status + ": "+ xhr.statusText);
         if(idxStop == urlArr.length - 1 ){
-            window.alert("Error Code "+xhr.status + ": "+ xhr.statusText);
+            if(ew.size > 0){
+                $('.btn2').removeClass('hide');
+                window.alert(`${ew.size+1} filters available, Click download to download if download does't start automatically.`)
+            }
+
+            if(xhr.status == 0){    
+                window.alert("Error Code "+xhr.status + " :  "+ " There is no response,  the connection is very slow, or the response body is empty. ");
+            }else{
+                window.alert("Error Code "+xhr.status + ": "+ xhr.statusText);
+            }
+
         }
     }
 

@@ -36,8 +36,13 @@
             
         }
 
+        .btn2{
+            text-align: center;
+        }
 
-        
+        .hide{
+            visibility: hidden;
+        }
         .div{
             position: relative;
             display: none;
@@ -81,11 +86,16 @@
             border: transparent;
             border-radius: 5rem;
             background-color: rgb(192, 221, 192);
-            transition: all 1s;
+            transition: background-color .5s;
+            box-shadow: 3px 2px 19px -9px black;
         }
         .button:hover{
             cursor: pointer;
             background-color: rgb(69, 204, 69);
+        }        
+        .clicked{
+            transform: scale(.95);
+            box-shadow: none;
         }
         .input{
             padding: 1rem;
@@ -168,18 +178,22 @@
 </head> 
 <body>
     
-    <div class="water  "><div class="load_percent">0%</div></div>
+    <div class="water "><div class="load_percent">0%</div></div>
 
     <div class="div show">
         <label class="label" for="crawUrl">Input your url here</label>
         <!-- value="https://linkedin.com"  value="https://www.amazon.com/s?i=electronics&dc&qid=1635879281&ref=sr_nr_i_14"-->
-        <input class="url input" type="url" name="crawlUrl"  placeholder="Paste Url here">
+        <input class="url input" type="url" name="crawlUrl"  placeholder="Paste Url here: https://www.yoururl.com/">
         
         <span class="tickContainer">
             <label class="tick" for="crawlPage">crawl only this page</label>
             <input class="tick inp" onclick="getTick()" type="checkbox" name="crawlPage" >
         </span>
         <button class="button" onclick="getUrl()" type="submit">Get Filters</button>
+    </div>
+
+    <div class="btn2 hide">
+        <button class="button" type="submit">Download Available Filters</button>
     </div>
 
     <script type="text/javascript" src="/UrlSpider/index.js"></script>
